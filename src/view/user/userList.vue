@@ -1,7 +1,7 @@
 <template>
   <div class="UserList">
     <el-button type="primary" @click="add()" icon="el-icon-circle-plus-outline">新增</el-button>
-    <el-button type="primary">批量删除</el-button>
+    <el-button type="primary" icon="el-icon-delete" :disabled="selected.length==0" @click="removeUsers()">删除</el-button>
     <el-table ref="multipleTable" @selection-change="handleSelectionChange" tooltip-effect="dark"
       :data="tableData" style="width: 100%;margin-top:10px">
       <el-table-column
@@ -26,11 +26,6 @@
       <el-table-column label="家庭住址">
         <template slot-scope="scope">
           <span>{{ scope.row.address }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="工号">
-        <template slot-scope="scope">
-          <span>{{ scope.row.worknum }}</span>
         </template>
       </el-table-column>
       <el-table-column label="工号">
@@ -73,46 +68,73 @@
 </template>
 
 <script>
-// import {getUsers} from '@/api/user'
+import {getUsers, Delete} from '@/api/user'
 import store from '@/store/store'
 export default {
   data() {
     return {
-      tableData: [{
-        id: 1,
-        name: '王小虎',
-        tel: '17789874545',
-        address: '上海市普陀区金沙江路 1517 弄',
-        worknum: '11223366554',
-        email: '9853651@qq.com',
-        password: '.......',
-        birth: '2016-05-02'
-      }]
+      tableData: [{}],
+      selected: []
     }
   },
   methods: {
     handleSelectionChange(val) {
-
+      this.selected = val
     },
     handleEdit (index, row) {
-      console.log(index, row)
       store.commit('changeUser', row)
       this.$router.push('userEdit')
     },
     handleLook (index, row) {
-      console.log(index, row)
       store.commit('changeUser', row)
       this.$router.push('userDisplay')
     },
     handleDelete (index, row) {
-      console.log(index, row)
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        Delete(row)
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        this.getUser()
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     add() {
       this.$router.push('userAdd')
+    },
+    removeUsers() {
+      this.$confirm('此操作将永久删除用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.selected.forEach(function(e) {
+          Delete(e)
+        })
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        this.getUser()
+      })
+    },
+    getUser() {
+      getUsers().then((data) => {
+        this.tableData = data
+      })
     }
   },
   created () {
-    // this.tableData = getUsers()
+    this.getUser()
   }
 }
 </script>

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {save} from '@/api/role'
+import {update} from '@/api/role'
 import store from '@/store/store'
 export default {
   data() {
@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     submit() {
-      save(this.form)
+      update(this.form)
     },
     back() {
       this.$store.dispatch('deleteTab', {

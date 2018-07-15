@@ -11,3 +11,7 @@ export function save(data) {
 export function update(data) {
   return post('user/edit', data)
 }
+
+export function Delete(data) {
+  return post('user/delete', data)
+}
